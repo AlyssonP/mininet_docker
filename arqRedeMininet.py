@@ -39,15 +39,23 @@ def run():
 
     brteste01 = "br-7263015daf68"  # Substitua pelo ID real
     brteste02 = "br-4a0cefb67b4e"  # Substitua pelo ID real
+
+    s1, s2 = net.get("s1", "s2")
     
     try:
+        # Método 1: Usando ovs-vsctl (mais confiável para OVS)
+        info("*** Conectando bridges Docker aos switches OVS\n")
         info(f"Conectando {brteste01} ao s1\n")
-        s1 = net.get("s1")
-        _intf1 = Intf(brteste01, node=s1)
-
+        s1.cmd(f'ovs-vsctl add-port s1 {brteste01}')
         info(f"Conectando {brteste02} ao s2\n")
-        s2 = net.get("s2")
-        _intf2 = Intf(brteste02, node=s2)
+        s2.cmd(f'ovs-vsctl add-port s2 {brteste02}')
+        
+        # Método alternativo 2: Usando Intf() (pode funcionar em alguns casos)
+        # info(f"Conectando {brteste01} ao s1\n")
+        # _intf1 = Intf(brteste01, node=s1)
+
+        # info(f"Conectando {brteste02} ao s2\n")
+        # _intf2 = Intf(brteste02, node=s2)
     except Exception as e:
         info(f"Erro ao conectar bridges: {e}\n")
         
