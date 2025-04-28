@@ -31,7 +31,7 @@ docker run -itd --name servidor --hostname servidor --network brteste02 --ip 172
 
 ## Passo 4 - Intalação de Pacotes Nescessários
 nstale os pacotes necessários para realizar os testes de conectividade e gerenciamento de rede:
-```
+```bash
 docker exec cliente apt update
 docker exec cliente apt -y install iputils-ping iproute2 iperf
 docker exec servidor apt update
@@ -44,7 +44,7 @@ Liste as redes Docker para obter os IDs das bridges brteste01 e brteste02:
 docker network ls
 ```
 Depois, use o comando `ip link show` para identificar as interfaces correspondentes aos IDs das bridges:
-```
+```bash
 ip link show
 ```
 As interfaces de rede Docker terão um nome começando com br-, como por exemplo br-xxxxx. Anote esses nomes para a próxima etapa.
@@ -54,32 +54,33 @@ Alterar os valores no script Mininet em Python para usar os nomes corretos das i
 
 ## Passo 7 - Executar o Script Mininet
 Execute o script **Mininet** em Python para configurar a rede de transporte:
-```
-sudo python3 arqRedMininet.py
+```bash
+sudo python3 arqRedeMininet.py
 ```
 
 ## Passo 8 - Configurar Rotas nos Containers
 ### Cliente -> Servidor
-No container Cliente, adicione a rota para alcançar a rede do Servidor:
-`ip route add 172.19.0.0/16 via 172.18.0.10`
+No container **Cliente**, adicione a rota para alcançar a rede do **Servidor**:
+```bash
+docker exec cliente ip route add 172.19.0.0/16 via 172.18.0.10
+```
 
 ### Servidor -> Cliente
-No container Servidor, adicione a rota para alcançar a rede do Cliente:
-`ip route add 172.18.0.0/16 via 172.19.0.10`
+No container **Servidor**, adicione a rota para alcançar a rede do **Cliente**:
+```bash
+docker exec servidor ip route add 172.18.0.0/16 via 172.19.0.10
+```
 
 ## Passo 9 - Teste de conectividade
 ### Teste de Ping no Cliente
-Dentro do container Cliente, execute o seguinte comando para testar a conectividade com o Servidor:
-```
+Dentro do container **Cliente**, execute o seguinte comando para testar a conectividade com o **Servidor**:
+```bash
 docker exec -it cliente bash
 ping 172.19.0.2
 ```
 ### Teste de Ping no Servidor
-Dentro do container Servidor, execute o seguinte comando para testar a conectividade com o Cliente:
-```
+Dentro do container **Servidor**, execute o seguinte comando para testar a conectividade com o **Cliente**:
+```bash
 docker exec -it servidor bash
 ping 172.18.0.2
 ```
-
-### Oservações
-Atualmente, estou enfrentando um problema de conectividade. Portanto, este cenário não está 100% funcional no momento. Estou investigando o que pode estar errado ou faltando.
