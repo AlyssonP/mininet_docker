@@ -24,43 +24,34 @@ class NetworkTopo(Topo):
     "A LinuxRouter connecting three IP subnets"
     
     def build(self, **_opts):
-        r1 = self.addNode("r1", cls=LinuxRouter, ip=None)
+        defaultIP = "172.18.0.10/16"  # IP address for r1-eth1
+        r1 = self.addNode("r1", cls=LinuxRouter, ip=defaultIP)
         s1, s2 = [self.addSwitch(s) for s in ("s1", "s2")]
         
-        self.addLink(s1, r1, intfName2="r1-eth1", params2={"ip": "172.18.0.10/16"})
+        self.addLink(s1, r1, intfName2="r1-eth1", params2={"ip": defaultIP})
         self.addLink(s2, r1, intfName2="r1-eth2", params2={"ip": "172.19.0.10/16"})
 
 def run():
     "Test linux router"
     topo = NetworkTopo()
     net = Mininet(topo=topo, waitConnected=True)
+
+    brteste01 = "br-8f91297f76b9"  # Substitua pelo ID real
+    brteste02 = "br-b9b84ce45687"  # Substitua pelo ID real
+
+    s1 = net.getNodeByName("s1")
+    s2 = net.getNodeByName("s2")
+
+    info(f"Conectando {brteste01} ao s1\n")
+    _intf1 = Intf(brteste01, node=s1)
+
+    info(f"Conectando {brteste02} ao s2\n")
+    _intf2 = Intf(brteste02, node=s2)
     
     net.start()
-
-    brteste01 = "br-7263015daf68"  # Substitua pelo ID real
-    brteste02 = "br-4a0cefb67b4e"  # Substitua pelo ID real
-
-    s1, s2 = net.get("s1", "s2")
-    
-    try:
-        # Método 1: Usando ovs-vsctl (mais confiável para OVS)
-        info("*** Conectando bridges Docker aos switches OVS\n")
-        info(f"Conectando {brteste01} ao s1\n")
-        s1.cmd(f'ovs-vsctl add-port s1 {brteste01}')
-        info(f"Conectando {brteste02} ao s2\n")
-        s2.cmd(f'ovs-vsctl add-port s2 {brteste02}')
         
-        # Método alternativo 2: Usando Intf() (pode funcionar em alguns casos)
-        # info(f"Conectando {brteste01} ao s1\n")
-        # _intf1 = Intf(brteste01, node=s1)
-
-        # info(f"Conectando {brteste02} ao s2\n")
-        # _intf2 = Intf(brteste02, node=s2)
-    except Exception as e:
-        info(f"Erro ao conectar bridges: {e}\n")
-        
-    # info( '*** Routing Table on Router:\n' )
-    # info( net[ 'r1' ].cmd( 'route' ) )
+    info( '*** Routing Table on Router:\n' )
+    info( net[ 'r1' ].cmd( 'route' ) )
 
     CLI(net)
     net.stop()
