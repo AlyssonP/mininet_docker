@@ -14,13 +14,15 @@ Antes de iniciar, é necessário instalar o **Docker** e o **Mininet**:
 - [Instalação do Docker](https://docs.docker.com/engine/install/)
 - [Instalação do Mininet - Passo 2](https://mininet.org/download/#option-2-native-installation-from-source)
 
+**Obs:** Para instalação do Mininet seguindo o passo dois será preciso de uma alteração no arquivo `mininet/util/install.sh` substituindo todas as ocorrências de `git:` por `http:`.
+
 ## Passo 2 - Criar Redes Docker
 
 Crie as redes **Docker** necessárias para a separação das redes de transporte:
 
 ```bash
-docker network create --subnet=172.18.0.0/16 --gateway=172.18.0.1 brteste01
-docker network create --subnet=172.19.0.0/16 --gateway=172.19.0.1 brteste02
+docker network create --subnet=172.18.0.0/16 -d bridge brteste01
+docker network create --subnet=172.19.0.0/16 -d bridge brteste02
 ```
 ## Passo 3 - Criar Containers Cliente e Servidor
 Crie os containers **Cliente** e **Servidor** com as configurações de rede apropriadas:
@@ -50,7 +52,7 @@ ip link show
 As interfaces de rede Docker terão um nome começando com br-, como por exemplo br-xxxxx. Anote esses nomes para a próxima etapa.
 
 ## Passo 6 - Alterar os Dados no Script Mininet
-Alterar os valores no script Mininet em Python para usar os nomes corretos das interfaces das redes Docker nas variáveis `brteste01` e `brteste02`.
+Alterar os valores no script Mininet em Python para usar os nomes corretos das interfaces das redes Docker nas variáveis `brteste01` e `brteste02` no arquivo python [arqRedeMininet.py](./arqRedeMininet.py).
 
 ## Passo 7 - Executar o Script Mininet
 Execute o script **Mininet** em Python para configurar a rede de transporte:
